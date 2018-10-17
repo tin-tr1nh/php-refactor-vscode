@@ -1,9 +1,9 @@
 {
     "name": "php-refactor",
-    "displayName": "php-refactor",
+    "displayName": "PHP Refactor",
     "description": "",
     "version": "0.0.1",
-    "publisher": "hungtin",
+    "publisher": "tintrinh",
     "engines": {
         "vscode": "^1.28.0"
     },
@@ -11,14 +11,14 @@
         "Other"
     ],
     "activationEvents": [
-        "onCommand:extension.sayHello"
+        "onCommand:php.extractFunction"
     ],
     "main": "./out/extension",
     "contributes": {
         "commands": [
             {
-                "command": "extension.sayHello",
-                "title": "Hello World"
+                "command": "php.extractFunction",
+                "title": "PHP Refactor: Extract Function"
             }
         ]
     },
@@ -34,6 +34,8 @@
         "vscode": "^1.1.21",
         "tslint": "^5.8.0",
         "@types/node": "^8.10.25",
-        "@types/mocha": "^2.2.42"
+        "@types/mocha": "^2.2.42",
+        "php-parser": "^3.0.0-prerelease.5",
+        "php-unparser": "^0.2.9"
     }
 }
