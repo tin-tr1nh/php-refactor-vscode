@@ -2,15 +2,20 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
+
 const PhpParser = require('php-parser');
 const UnParser = require('php-unparser');
+
+// these vars is global scope to function (usually)
+// so we consider that it already in the function scope from begining
+const InScopeDefaultVars = ["this", "_SERVER"];
 
 interface State {
     vars: string[];
     level: number;
 }
 
-function walk(node: any, state: State, params: string[]) {
+function walk(node: any, state: State, potentialParams: string[]) {
     console.log(`Walk to node ${node.kind}-${node.name}, can see vars ${state.vars}`);
 
     // foreach
@@ -30,10 +35,18 @@ function walk(node: any, state: State, params: string[]) {
         }
     }
 
+    if (node.kind === "assign" &&
+        node.left !== undefined &&
+        node.left.kind === "variable") {
+        state.vars.push(node.left.name);
+    }
+
     // check if current node is variable kind
     // and not in current state, it could be the potential parameters to refactor
-    if (node.kind === "variable" && state.vars.indexOf(node.name) === -1) {
-        params.push(node.name);
+    if (node.kind === "variable" &&
+        state.vars.indexOf(node.name) === -1 &&
+        potentialParams.indexOf(node.name) === -1) {
+        potentialParams.push(node.name);
     }
 
     // after check walk inside if possible 
@@ -42,30 +55,30 @@ function walk(node: any, state: State, params: string[]) {
 
     if (node.children !== undefined && node.children instanceof Array) {
         node.children.forEach((child: any) => {
-            walk(child, state, params);
+            walk(child, state, potentialParams);
         });
     }
 
     if (node.arguments !== undefined && node.arguments instanceof Array) {
         node.arguments.forEach((child: any) => {
-            walk(child, state, params);
+            walk(child, state, potentialParams);
         });
     }
 
     if (node.left !== undefined) {
-        walk(node.left, state, params);
+        walk(node.left, state, potentialParams);
     }
 
     if (node.right !== undefined) {
-        walk(node.right, state, params);
+        walk(node.right, state, potentialParams);
     }
 
     if (node.what !== undefined) {
-        walk(node.what, state, params);
+        walk(node.what, state, potentialParams);
     }
 
     if (node.source !== undefined) {
-        walk(node.source, state, params);
+        walk(node.source, state, potentialParams);
     }
 
     if (node.body !== undefined) {
@@ -75,7 +88,7 @@ function walk(node: any, state: State, params: string[]) {
             vars: state.vars.slice(), // create new array
             level: state.level
         };
-        walk(node.body, innerState, params);
+        walk(node.body, innerState, potentialParams);
     }
 }
 
@@ -95,14 +108,14 @@ function parseToAST(code: string): any {
     return ast;
 }
 
-function obtainParams(ast: any): string[] {
-    var params: string[] = [];
+function obtainPotentialParams(ast: any): string[] {
+    var potentialParams: string[] = [];
     var initState: State = {
-        vars: [],
+        vars: InScopeDefaultVars.slice(),
         level: 0
-    }
-    walk(ast, initState, params);
-    return params;
+    };
+    walk(ast, initState, potentialParams);
+    return potentialParams;
 }
 
 function toVariableNode(name: string): any {
@@ -113,7 +126,7 @@ function toVariableNode(name: string): any {
 }
 
 function wrapByFunction(ast: any): any {
-    const params = obtainParams(ast);
+    const params = obtainPotentialParams(ast);
     const paramNodes = params.map(param => {
         return toVariableNode(param);
     });
