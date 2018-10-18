@@ -1,7 +1,7 @@
 import * as tracer from "./tracer";
 import * as commentGen from "./comment_gen";
+import * as funcWriter from "./writer/function";
 
-const UnParser = require('php-unparser');
 const PhpParser = require('php-parser');
 
 function parseToAST(code: string): any {
@@ -29,21 +29,6 @@ function makeVar(name: string): any {
     };
 }
 
-// helper function to write 
-// a AST node to a string
-function writeToStr(ast: any): string {
-    var options = {
-        indent: true,
-        dontUseWhitespaces: false,
-        shortArray: true,
-        bracketsNewLine: true,
-        forceNamespaceBrackets: false,
-        collapseEmptyLines: true
-    };
-
-    return UnParser(ast, options);
-}
-
 // gen a string code of a function
 function genFunc(name: string, params: string[]): string {
     const paramNodes = params.map(param => {
@@ -61,7 +46,7 @@ function genFunc(name: string, params: string[]): string {
         }
     };
 
-    return writeToStr(funcAST);
+    return funcWriter.genCode(funcAST);
 }
 
 function wrapCodeByFunc(code: string, params: string[]): string {
@@ -83,7 +68,7 @@ function wrapCodeByFunc(code: string, params: string[]): string {
 export function extractFunc(code: string): string {
     const ast = parseToAST(code);
     const params = tracer.obtainPotentialParams(ast);
-    
+
     return wrapCodeByFunc(code, params);
 }
 
