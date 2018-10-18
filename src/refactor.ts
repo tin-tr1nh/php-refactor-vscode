@@ -42,6 +42,15 @@ function genFunc(name: string, params: string[]): string {
 
 export function extractFunc(ast: any, code: string): string {
     const params = tracer.obtainPotentialParams(ast);
-    code = genFunc("newFunc", params);
+    let funcCode = genFunc("newFunc", params);
+
+    let afterCurlyBracketIndex = funcCode.indexOf("{") + 1;
+    if (afterCurlyBracketIndex === -1) {
+        return funcCode;
+    }
+
+    code = funcCode.slice(0, afterCurlyBracketIndex)
+        + "\n" + code
+        + funcCode.slice(afterCurlyBracketIndex);
     return code;
 }
