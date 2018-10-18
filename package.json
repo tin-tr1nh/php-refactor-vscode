@@ -2,11 +2,12 @@
     "name": "php-refactor",
     "displayName": "PHP Refactor",
     "description": "",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "publisher": "tintrinh",
     "engines": {
         "vscode": "^1.28.0"
     },
+    "icon": "logo.jpg",
     "categories": [
         "Other"
     ],
