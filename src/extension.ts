@@ -28,8 +28,14 @@ export function activate(context: vscode.ExtensionContext) {
         let text = editor.document.getText(selection);
 
         editor.edit(builder => {
-            const code = refactor.extractFunc(text);
-            builder.replace(selection, code);
+            try {
+                const code = refactor.extractFunc(text);
+                builder.replace(selection, code);
+            } catch (error) {
+                console.log(error);
+                vscode.window.showErrorMessage("選んだコード部分はシンタックスエラーです");
+            }
+
         });
     });
 
