@@ -15,6 +15,9 @@ function cloneScope(scope: Scope): Scope {
         return newScope;
 }
 
+// the foreach and similar one
+// which create new variables for the scope inside
+// check and create it here
 function spawnInnerScopeVars(node: any): string[] {
     const innerScopeVars = [];
 
@@ -31,6 +34,8 @@ function spawnInnerScopeVars(node: any): string[] {
     return innerScopeVars;
 }
 
+// check if this node could create new variable
+// for current scope
 function updateScopeVars(node: any, scope: Scope) {
     // assign will create new vars 
     // in the state of the current scope
@@ -42,9 +47,9 @@ function updateScopeVars(node: any, scope: Scope) {
     }
 }
 
+// check if current node is variable kind
+// and not in current state, it could be the potential parameters to refactor
 function updatePotentialParams(node: any, scope: Scope, potentialParams: string[]) {
-    // check if current node is variable kind
-    // and not in current state, it could be the potential parameters to refactor
     if (node.kind === "variable" &&
         scope.vars.indexOf(node.name) === -1 &&
         potentialParams.indexOf(node.name) === -1) {
@@ -69,7 +74,7 @@ function walk(node: any, scope: Scope, potentialParams: string[], innerScopeVars
     updatePotentialParams(node, scope, potentialParams);
     
 
-    // after check walk inside if possible 
+    // walk inside if possible 
     // through children (block), arguments, left, right, arguments (call), what,
     // body (foreach), source (foreach)
 
