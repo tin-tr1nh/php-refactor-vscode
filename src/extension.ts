@@ -4,24 +4,6 @@
 import * as vscode from "vscode";
 import * as refactor from "./refactor";
 
-const PhpParser = require('php-parser');
-
-function parseToAST(code: string): any {
-    const parser = new PhpParser({
-        parser: {
-            extractDoc: true,
-            php7: true
-        },
-        ast: {
-            withPositions: true
-        }
-    });
-    const ast = parser.parseEval(code);
-    console.log(ast);
-
-    return ast;
-}
-
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -46,8 +28,7 @@ export function activate(context: vscode.ExtensionContext) {
         let text = editor.document.getText(selection);
 
         editor.edit(builder => {
-            var ast = parseToAST(text);
-            const code = refactor.extractFunc(ast, text);
+            const code = refactor.extractFunc(text);
             builder.replace(selection, code);
         });
     });
