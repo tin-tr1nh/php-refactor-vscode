@@ -1,4 +1,5 @@
 import * as tracer from "./tracer";
+import * as commentGen from "./comment_gen";
 
 const UnParser = require('php-unparser');
 const PhpParser = require('php-parser');
@@ -63,11 +64,7 @@ function genFunc(name: string, params: string[]): string {
     return writeToStr(funcAST);
 }
 
-// wrap any code into a function
-// auto generate parameter base on generated ast tree 
-export function extractFunc(code: string): string {
-    const ast = parseToAST(code);
-    const params = tracer.obtainPotentialParams(ast);
+function wrapCodeByFunc(code: string, params: string[]): string {
     let funcCode = genFunc("newFunc", params);
 
     let afterCurlyBracketIndex = funcCode.indexOf("{") + 1;
@@ -79,4 +76,23 @@ export function extractFunc(code: string): string {
         + "\n" + code
         + funcCode.slice(afterCurlyBracketIndex);
     return code;
+}
+
+// wrap any code into a function
+// auto generate parameter base on generated ast tree 
+export function extractFunc(code: string): string {
+    const ast = parseToAST(code);
+    const params = tracer.obtainPotentialParams(ast);
+    
+    return wrapCodeByFunc(code, params);
+}
+
+export function extractFuncWithComment(code: string): string {
+    const ast = parseToAST(code);
+    const params = tracer.obtainPotentialParams(ast);
+
+    let funcCode = wrapCodeByFunc(code, params);
+    const commentCode = commentGen.generate("Description for function", params);
+    funcCode = commentCode + funcCode;
+    return funcCode;
 }

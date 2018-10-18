@@ -4,18 +4,7 @@
 import * as vscode from "vscode";
 import * as refactor from "./refactor";
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
-
-    // Use the console to output diagnostic information (console.log) and errors (console.error)
-    // This line of code will only be executed once when your extension is activated
-    console.log('Congratulations, your extension "php-refactor" is now active!');
-
-    // The command has been defined in the package.json file
-    // Now provide the implementation of the command with  registerCommand
-    // The commandId parameter must match the command field in package.json
-    let disposable = vscode.commands.registerCommand('php.extractFunction', () => {
+function handleExtractFunctionEvent(handler: (text: string)=>string) {
         // The code you place here will be executed every time your command is executed
 
         let editor = vscode.window.activeTextEditor;
@@ -29,7 +18,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         editor.edit(builder => {
             try {
-                const code = refactor.extractFunc(text);
+                const code = handler(text);
                 builder.replace(selection, code);
             } catch (error) {
                 console.log(error);
@@ -37,9 +26,28 @@ export function activate(context: vscode.ExtensionContext) {
             }
 
         });
+}
+
+// this method is called when your extension is activated
+// your extension is activated the very first time the command is executed
+export function activate(context: vscode.ExtensionContext) {
+
+    // Use the console to output diagnostic information (console.log) and errors (console.error)
+    // This line of code will only be executed once when your extension is activated
+    console.log('Congratulations, your extension "php-refactor" is now active!');
+
+    // The command has been defined in the package.json file
+    // Now provide the implementation of the command with  registerCommand
+    // The commandId parameter must match the command field in package.json
+    let disposable = vscode.commands.registerCommand('php.extractFunction', () => {
+        handleExtractFunctionEvent(refactor.extractFunc);
     });
 
-    context.subscriptions.push(disposable);
+    let disposable2 = vscode.commands.registerCommand('php.extractFunctionWithComment', () => {
+        handleExtractFunctionEvent(refactor.extractFuncWithComment);
+    });
+
+    context.subscriptions.push(disposable, disposable2);
 }
 
 // this method is called when your extension is deactivated

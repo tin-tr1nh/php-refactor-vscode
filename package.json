@@ -11,7 +11,8 @@
         "Other"
     ],
     "activationEvents": [
-        "onCommand:php.extractFunction"
+        "onCommand:php.extractFunction",
+        "onCommand:php.extractFunctionWithComment"
     ],
     "main": "./out/extension",
     "contributes": {
@@ -19,6 +20,10 @@
             {
                 "command": "php.extractFunction",
                 "title": "PHP Refactor: Extract Function"
+            },
+            {
+                "command": "php.extractFunctionWithComment",
+                "title": "PHP Refactor: Extract Function With Comment"
             }
         ]
     },

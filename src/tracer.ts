@@ -1,4 +1,4 @@
-import {Scope} from "./Scope";
+import {Scope} from "./model/Scope";
 
 
 // these vars is global scope to function (usually)
