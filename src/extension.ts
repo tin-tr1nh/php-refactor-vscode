@@ -2,12 +2,12 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
-import * as writer from "./writer";
+import * as refactor from "./refactor";
 
 const PhpParser = require('php-parser');
 
 function parseToAST(code: string): any {
-    var parser = new PhpParser({
+    const parser = new PhpParser({
         parser: {
             extractDoc: true,
             php7: true
@@ -16,7 +16,7 @@ function parseToAST(code: string): any {
             withPositions: true
         }
     });
-    var ast = parser.parseEval(code);
+    const ast = parser.parseEval(code);
     console.log(ast);
 
     return ast;
@@ -47,8 +47,8 @@ export function activate(context: vscode.ExtensionContext) {
 
         editor.edit(builder => {
             var ast = parseToAST(text);
-            ast = writer.wrapByFunction(ast);
-            builder.replace(selection, writer.writeToStr(ast));
+            const code = refactor.extractFunc(ast, text);
+            builder.replace(selection, code);
         });
     });
 
