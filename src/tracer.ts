@@ -53,6 +53,10 @@ function walk(node: any, visitor: Visitor) {
         walk(node.test, visitor.GetChildrenVisitor(node.kind + "-test"));
     }
 
+    if (node.alternate !== undefined && node.alternate !== null) {
+        walk(node.alternate, visitor.GetChildrenVisitor(node.kind + "-alternate"));
+    }
+
     if (node.body !== undefined) {
         walk(node.body, visitor.GetChildrenVisitor(node.kind + "-body"));
     }
