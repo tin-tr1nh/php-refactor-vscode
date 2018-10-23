@@ -13,3 +13,9 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - Refactoring code
 
 - Create array of variables that are new created but not used for return.
+
+## [0.0.5]
+
+- Fix return syntax bug.
+
+- Fix not return for ```Extract With Comment```.
