@@ -5,7 +5,7 @@ import { GetPotentialReturnVarsVisitor } from "./visitor/return";
 
 
 // these vars is global scope to function (usually)
-// so we consider that it already in the function scope from begining
+// so we consider that it already in the function scope from beginning
 const InScopeDefaultVars = ["this", "_SERVER"];
 
 function walk(node: any, visitor: Visitor) {
