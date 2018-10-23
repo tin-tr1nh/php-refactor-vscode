@@ -4,5 +4,5 @@ export function genCode(returnVars: string[]): string {
     }
 
     let listStr = returnVars.map(value => `$${value}`).join(",");
-    return `return array(${listStr})`;
+    return `return array(${listStr});`;
 }

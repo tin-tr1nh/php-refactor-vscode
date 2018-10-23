@@ -59,18 +59,18 @@ function walk(node: any, visitor: Visitor) {
 }
 
 export function obtainPotentialParams(ast: any): string[] {
-    var initState: Scope = {
+    let initState: Scope = {
         vars: InScopeDefaultVars.slice(), // copy new array in order not to affect const array
         level: 0
     };
 
-    var visitor = new GetPotentialParamVisitor(initState);
+    let visitor = new GetPotentialParamVisitor(initState);
     walk(ast, visitor);
     return visitor.Result();
 }
 
 export function obtainPotentialReturnVars(ast: any): string[] {
-    var visitor = new GetPotentialReturnVarsVisitor();
+    let visitor = new GetPotentialReturnVarsVisitor();
     walk(ast, visitor);
     return visitor.Result();
 }
