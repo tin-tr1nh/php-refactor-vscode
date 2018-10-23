@@ -19,3 +19,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - Fix return syntax bug.
 
 - Fix not return for ```Extract With Comment```.
+
+## [0.0.6]
+
+- Add trace in else block

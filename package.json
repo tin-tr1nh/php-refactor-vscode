@@ -2,7 +2,7 @@
     "name": "php-refactor",
     "displayName": "PHP Refactor",
     "description": "Helper tool to leverage your works as refactoring PHP code",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "publisher": "tintrinh",
     "engines": {
         "vscode": "^1.28.0"
