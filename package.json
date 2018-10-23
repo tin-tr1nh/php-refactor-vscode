@@ -1,7 +1,7 @@
 {
     "name": "php-refactor",
     "displayName": "PHP Refactor",
-    "description": "",
+    "description": "Helper tool to leverage your works as refactoring PHP code",
     "version": "0.0.5",
     "publisher": "tintrinh",
     "engines": {
