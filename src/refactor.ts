@@ -1,6 +1,7 @@
 import * as tracer from "./tracer";
 import * as commentGen from "./comment_gen";
 import * as funcWriter from "./writer/function";
+import * as returnWriter from "./writer/return";
 
 const PhpParser = require('php-parser');
 
@@ -68,6 +69,8 @@ function wrapCodeByFunc(code: string, params: string[]): string {
 export function extractFunc(code: string): string {
     const ast = parseToAST(code);
     const params = tracer.obtainPotentialParams(ast);
+    const returnVars = tracer.obtainPotentialReturnVars(ast);
+    code += "\n" + returnWriter.genCode(returnVars);
 
     return wrapCodeByFunc(code, params);
 }

@@ -1,125 +1,76 @@
 import {Scope} from "./model/Scope";
+import { Visitor } from "./visitor/Visitor";
+import { GetPotentialParamVisitor } from "./visitor/param";
+import { GetPotentialReturnVarsVisitor } from "./visitor/return";
 
 
 // these vars is global scope to function (usually)
 // so we consider that it already in the function scope from begining
 const InScopeDefaultVars = ["this", "_SERVER"];
 
-
-function cloneScope(scope: Scope): Scope {
-    var newScope: Scope = {
-            vars: scope.vars.slice(),
-            level: scope.level
-        };
-        
-        return newScope;
-}
-
-// the foreach and similar one
-// which create new variables for the scope inside
-// check and create it here
-function spawnInnerScopeVars(node: any): string[] {
-    const innerScopeVars = [];
-
-    if (node.kind === "foreach") {
-
-        if (node.value !== undefined && node.value.kind === "variable") {
-            innerScopeVars.push(node.value.name);
-        }
-
-        if (node.key !== null && node.key.kind === "variable") {
-            innerScopeVars.push(node.key.name);
-        }
-    }
-    return innerScopeVars;
-}
-
-// check if this node could create new variable
-// for current scope
-function updateScopeVars(node: any, scope: Scope) {
-    // assign will create new vars 
-    // in the state of the current scope
-    // add var on the left of the assignment to the state
-    if (node.kind === "assign" &&
-        node.left !== undefined &&
-        node.left.kind === "variable") {
-        scope.vars.push(node.left.name);
-    }
-}
-
-// check if current node is variable kind
-// and not in current state, it could be the potential parameters to refactor
-function updatePotentialParams(node: any, scope: Scope, potentialParams: string[]) {
-    if (node.kind === "variable" &&
-        scope.vars.indexOf(node.name) === -1 &&
-        potentialParams.indexOf(node.name) === -1) {
-        potentialParams.push(node.name);
-    }
-}
-
-function walk(node: any, scope: Scope, potentialParams: string[], innerScopeVars: string[]) {
-    console.log(`Walk to node ${node.kind}-${node.name}, can see vars ${scope.vars}`);
-    scope.vars.push(...innerScopeVars);
-
-    // if this create new vars for the inner scope
-    // create new this var to pass into next call
-    innerScopeVars = spawnInnerScopeVars(node);
-
-    // if this node create new vars in this scope
-    // push those into scope.vars
-    updateScopeVars(node, scope);
-
-    // check if this node could be refactor
-    // as a parameters of refactored function
-    updatePotentialParams(node, scope, potentialParams);
-    
-
+function walk(node: any, visitor: Visitor) {
+    console.log(`Walk to node ${node.kind}-${node.name}`);
+    visitor.EnterNode(node);
     // walk inside if possible 
     // through children (block), arguments, left, right, arguments (call), what,
     // body (foreach), source (foreach)
 
-    if (node.children !== undefined && node.children instanceof Array) {
+    if (node.children instanceof Array) {
         node.children.forEach((child: any) => {
-            walk(child, scope, potentialParams, innerScopeVars);
+            walk(child, visitor.GetChildrenVisitor(node.kind + "-child"));
         });
     }
 
-    if (node.arguments !== undefined && node.arguments instanceof Array) {
-        node.arguments.forEach((child: any) => {
-            walk(child, scope, potentialParams, innerScopeVars);
+    if (node.arguments instanceof Array) {
+        node.arguments.forEach((argument: any) => {
+            walk(argument, visitor.GetChildrenVisitor(node.kind + "-argument"));
+        });
+    }
+
+    if (node.kind === "encapsed" && node.value instanceof Array) {
+        node.value.forEach((value: any) => {
+            walk(value, visitor.GetChildrenVisitor(node.kind + "-encapsed-value"));
         });
     }
 
     if (node.left !== undefined) {
-        walk(node.left, scope, potentialParams, innerScopeVars);
+        walk(node.left, visitor.GetChildrenVisitor(node.kind + "-left"));
     }
 
     if (node.right !== undefined) {
-        walk(node.right, scope, potentialParams, innerScopeVars);
+        walk(node.right, visitor.GetChildrenVisitor(node.kind + "-right"));
     }
 
     if (node.what !== undefined) {
-        walk(node.what, scope, potentialParams, innerScopeVars);
+        walk(node.what, visitor.GetChildrenVisitor(node.kind + "-what"));
     }
 
     if (node.source !== undefined) {
-        walk(node.source, scope, potentialParams, innerScopeVars);
+        walk(node.source, visitor.GetChildrenVisitor(node.kind + "-source"));
+    }
+
+    if (node.test !== undefined) {
+        walk(node.test, visitor.GetChildrenVisitor(node.kind + "-test"));
     }
 
     if (node.body !== undefined) {
-        // copy state to pass it to inner scope
-        // because inner scope shouldn't change outer scope
-        var innerScope: Scope = cloneScope(scope);
-        walk(node.body, innerScope, potentialParams, innerScopeVars);
+        walk(node.body, visitor.GetChildrenVisitor(node.kind + "-body"));
     }
 }
 
 export function obtainPotentialParams(ast: any): string[] {
-    var potentialParams: string[] = [];
     var initState: Scope = {
-        vars: InScopeDefaultVars.slice(),
+        vars: InScopeDefaultVars.slice(), // copy new array in order not to affect const array
         level: 0
     };
-    walk(ast, initState, potentialParams, []);
-    return potentialParams;
+
+    var visitor = new GetPotentialParamVisitor(initState);
+    walk(ast, visitor);
+    return visitor.Result();
+}
+
+export function obtainPotentialReturnVars(ast: any): string[] {
+    var visitor = new GetPotentialReturnVarsVisitor();
+    walk(ast, visitor);
+    return visitor.Result();
 }
