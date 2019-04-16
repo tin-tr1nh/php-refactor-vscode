@@ -2,7 +2,7 @@
     "name": "php-refactor",
     "displayName": "PHP Refactor",
     "description": "Helper tool to leverage your works as refactoring PHP code",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "publisher": "tintrinh",
     "engines": {
         "vscode": "^1.28.0"
@@ -40,10 +40,10 @@
         "typescript": "^2.6.1",
         "tslint": "^5.8.0",
         "@types/node": "^8.10.25",
-        "@types/mocha": "^2.2.42"
+        "@types/mocha": "^2.2.42",
+        "vscode": "^1.1.33"
     },
     "dependencies": {
-        "vscode": "^1.1.21",
         "php-parser": "^3.0.0-prerelease.5"
     }
 }
